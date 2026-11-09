@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reproducible Test Cases"
+  short_description: "Тест-кейсы с подтверждённым прохождением сценария"
+  default_prompt: "Используй $write-reproducible-test-cases: проверь требования и существующее покрытие, подтверди сценарий и сохрани локальный пакет тест-кейсов."
