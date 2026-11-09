@@ -87,7 +87,7 @@ class ContractTests(unittest.TestCase):
     def test_old_report_does_not_claim_new_run(self):
         self.case()["verification"].update(basis="existing_report", new_run=False)
         MODULE.validate(self.data, self.root)
-        self.assertIn("новый прогон — нет", MODULE.render_report(self.data))
+        self.assertIn("new run: no", MODULE.render_report(self.data))
 
     def test_rejects_contradictory_report_provenance(self):
         self.case()["verification"].update(basis="existing_report", new_run=True)

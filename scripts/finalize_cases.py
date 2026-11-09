@@ -213,7 +213,7 @@ def validate(data: dict, root: Path) -> None:
 
 
 def bullets(items: list) -> list[str]:
-    return [f"- {item}" for item in items] or ["- Не требуются / отсутствуют в указанной области."]
+    return [f"- {item}" for item in items] or ["- None required or found in this scope."]
 
 
 def artifact_link(path: str) -> str:
@@ -221,46 +221,46 @@ def artifact_link(path: str) -> str:
 
 
 def render_case(case: dict) -> str:
-    lines = [f"# {case['title']}", "", f"**Действие:** {case['action']} · **Статус:** {case['status']}",
-             "", case["reason"], "", "## Источники", "", *bullets(case["sources"])]
+    lines = [f"# {case['title']}", "", f"**Action:** {case['action']} · **Status:** {case['status']}",
+             "", case["reason"], "", "## Sources", "", *bullets(case["sources"])]
     if case.get("existing_ref"):
-        lines += ["", f"**Существующий кейс:** {case['existing_ref']}"]
+        lines += ["", f"**Existing case:** {case['existing_ref']}"]
     if case["action"] in {"unchanged", "none"}:
         return "\n".join(lines) + "\n"
-    lines += ["", "## Предусловия", "", *bullets(case["preconditions"])]
+    lines += ["", "## Initial conditions", "", *bullets(case["preconditions"])]
     if case["variants"]:
-        lines += ["", "## Проверяемые варианты", "", *bullets(case["variants"])]
+        lines += ["", "## Checked variants", "", *bullets(case["variants"])]
     media = case["media"]
     for item in media["items"]:
         if item["step"] == 0:
-            lines += ["", f"![{cell(item['caption'])}]({artifact_link(item['path'])})", f"Источник: {item['role']}."]
-    lines += ["", "## Шаги", ""]
+            lines += ["", f"![{cell(item['caption'])}]({artifact_link(item['path'])})", f"Source: {item['role']}."]
+    lines += ["", "## Steps", ""]
     for number, step in enumerate(case["steps"], 1):
-        lines += [f"{number}. {step['action']}", f"   Ожидается: {step['expected']}"]
+        lines += [f"{number}. {step['action']}", f"   Expected: {step['expected']}"]
         for item in media["items"]:
             if item["step"] == number:
-                lines += [f"\n   ![{cell(item['caption'])}]({artifact_link(item['path'])})", f"   Источник: {item['role']}."]
+                lines += [f"\n   ![{cell(item['caption'])}]({artifact_link(item['path'])})", f"   Source: {item['role']}."]
     if "estimate" in case:
-        lines += ["", f"**Оценка полного прохода:** {case['estimate']['seconds']} с. {case['estimate']['basis']}"]
+        lines += ["", f"**Total time estimate:** {case['estimate']['seconds']} seconds. {case['estimate']['basis']}"]
     v = case["verification"]
-    lines += ["", "## Подтверждение прохождения", "",
-              f"Основание: {v['basis']}. Результат: {v['result']}. Новый прогон: {'да' if v['new_run'] else 'нет'}.",
-              f"Среда: {v['environment']}. Версия: {v['version']}. Проверка: {v['checked_at']}.",
-              "", f"Проверенная область: {v['scope']}",
-              f"Подтверждённые шаги: {', '.join(map(str, v['covered_steps'])) or 'нет'}."]
+    lines += ["", "## Execution evidence", "",
+              f"Basis: {v['basis']}. Result: {v['result']}. New run: {'yes' if v['new_run'] else 'no'}.",
+              f"Environment: {v['environment']}. Version: {v['version']}. Check time: {v['checked_at']}.",
+              "", f"Checked scope: {v['scope']}",
+              f"Tested steps: {', '.join(map(str, v['covered_steps'])) or 'none'}."]
     for path in v["artifacts"]:
-        lines += [f"- [Артефакт]({artifact_link(path)})"]
-    lines += ["", f"**Медиа:** {media['reason']}"]
+        lines += [f"- [Evidence]({artifact_link(path)})"]
+    lines += ["", f"**Media:** {media['reason']}"]
     if v["limitations"]:
-        lines += ["", "## Ограничения", "", *bullets(v["limitations"])]
+        lines += ["", "## Limits", "", *bullets(v["limitations"])]
     if "automation" in case:
         a = case["automation"]
-        lines += ["", "## Автопокрытие", "", "Просмотрено:", *bullets(a["checked"]), "", "Найдено:",
-                  *bullets([f"{f['ref']}: {f['covers']}" for f in a["found"]]), "", "Пробелы:", *bullets(a["gaps"]),
-                  "", f"Рекомендация: {a['action']} / {a['target']}. {a['reason']}"]
+        lines += ["", "## Automated tests", "", "Inspected:", *bullets(a["checked"]), "", "Found:",
+                  *bullets([f"{f['ref']}: {f['covers']}" for f in a["found"]]), "", "Gaps:", *bullets(a["gaps"]),
+                  "", f"Recommendation: {a['action']} / {a['target']}. {a['reason']}"]
     if "external" in case:
         e = case["external"]
-        lines += ["", "## Внешняя запись", "", f"{e['system']}: {e['case_ref']}. Состояние: {e['state']}."]
+        lines += ["", "## External write", "", f"{e['system']}: {e['case_ref']}. State: {e['state']}."]
         lines += [f"- [Readback]({artifact_link(p)})" for p in e["readback"]]
     return "\n".join(lines) + "\n"
 
@@ -273,36 +273,36 @@ def render_report(data: dict) -> str:
     context = data["project_context"]
     project = context["case_project"]
     repos = context["automation_repositories"]
-    lines = ["# Результат", "", f"Режим: {data['mode']}. Результат сохранён локально.", "",
-             "## Контекст проекта", "",
-             f"**База кейсов:** {project.get('location') or 'не указана'}; {project['status']}.",
-             f"Источник: {project['source']}. {project['reason']}", "",
-             f"**Репозитории автоматизации:** {repos['status']}. {repos['reason']}",
-             f"Источник: {repos['source']}."]
+    lines = ["# Result", "", f"Mode: {data['mode']}. Local result.", "",
+             "## Project context", "",
+             f"**Case database:** {project.get('location') or 'not supplied'}; {project['status']}.",
+             f"Source: {project['source']}. {project['reason']}", "",
+             f"**Automation repositories:** {repos['status']}. {repos['reason']}",
+             f"Source: {repos['source']}."]
     for repo in repos["repositories"]:
-        lines += [f"- {repo['location']} — область: {repo['scope']}; версия: {repo['revision']}."]
-    lines += ["", "## Решения", "",
-             "| Сценарий | Решение | Статус | Основание прохождения |", "|---|---|---|---|"]
+        lines += [f"- {repo['location']}; scope: {repo['scope']}; revision: {repo['revision']}."]
+    lines += ["", "## Decisions", "",
+             "| Case | Action | Status | Execution basis |", "|---|---|---|---|"]
     for c in data["cases"]:
-        basis = c.get("verification", {}).get("basis", "Не требовалось")
+        basis = c.get("verification", {}).get("basis", "Not required")
         lines += [f"| [{cell(c['title'])}](cases/{c['id']}.md) | {c['action']} | {c['status']} | {basis} |"]
     coverage = data["coverage"]
-    lines += ["", f"**Поиск покрытия:** {coverage['status']}. {coverage['scope']}", coverage["reason"]]
+    lines += ["", f"**Coverage search:** {coverage['status']}. {coverage['scope']}", coverage["reason"]]
     for c in data["cases"]:
         if c["action"] not in {"create", "update"}:
             continue
         v = c["verification"]
-        lines += ["", f"**{c['title']}:** новый прогон — {'да' if v['new_run'] else 'нет'}; {v['result']}. {v['scope']}"]
+        lines += ["", f"**{c['title']}:** new run: {'yes' if v['new_run'] else 'no'}; {v['result']}. {v['scope']}"]
         lines += bullets(v["limitations"]) if v["limitations"] else []
         if "automation" in c:
             a = c["automation"]
-            lines += [f"Автопокрытие: {a['action']} / {a['target']}. {a['reason']}"]
+            lines += [f"Automated tests: {a['action']} / {a['target']}. {a['reason']}"]
         if "external" in c:
             e = c["external"]
-            lines += [f"Внешняя запись: {e['state']} — {e['system']}, {e['case_ref']}."]
+            lines += [f"External write: {e['state']} — {e['system']}, {e['case_ref']}."]
     if data["not_done"]:
-        lines += ["", "## Требуется внимание", "", *bullets(data["not_done"])]
-    lines += ["", "Проверка структуры и файлов не заменяет проверку требований и фактическое прохождение."]
+        lines += ["", "## Outstanding work", "", *bullets(data["not_done"])]
+    lines += ["", "Structural checks cannot prove application behavior."]
     return "\n".join(lines) + "\n"
 
 

@@ -1,32 +1,16 @@
-# Скриншоты, дизайн и ссылки
+# Images and QR codes
 
-Решение о медиа зависит от воспроизводимости и устойчивой практики близких кейсов.
-Для сложного состояния или визуального ожидания изображение может быть необходимо;
-для простого действия добавлять снимок ради количества не нужно. В результате указать,
-нужны ли изображения, почему и какие прочитанные примеры влияют на решение.
+Use images when the case needs them or comparable current cases need them.
+Record the reason. Open each image before use.
+Identify its source and purpose: `product`, `design`, or `attachment`.
+A design image shows an expected state; a product image shows the observed build.
+Prefer current evidence when it better explains the case.
 
-Различать происхождение:
+Save required files under `evidence/`. Put each image next to its condition or step.
+Use stable links. Exclude secrets and private data from shared files.
+For TMS output, examine the uploaded image through an independent read.
+Missing required media blocks case readiness.
 
-- Снимок приложения показывает фактическое состояние проверенной реализации.
-- Экспорт дизайна показывает ожидаемое состояние по макету, не подтверждая реализацию.
-- Вложение задачи или прежнего отчёта использовать по его проверенному назначению.
-
-Изображение сначала открыть и визуально проверить. Имя файла, подпись или чужое
-«всё хорошо» не заменяют просмотр. При новом прогоне предпочитать актуальный снимок,
-если он точнее показывает то, что увидит следующий исполнитель.
-
-Сохранить локальную копию необходимого evidence в `evidence/`, рядом с пакетом результата.
-Указать источник, роль (`product`, `design`, `attachment`) и состояние/номер шага.
-В кейсе размещать изображения возле поясняемого шага или ожидания, в принятом формате.
-Не использовать временные подписанные ссылки как постоянные иллюстрации.
-Перед распространением проверить, что на снимках и в URL нет секретов и личных данных.
-
-Для TMS загрузить файл поддержанным способом и после записи открыть фактическое
-изображение/вложение. Наличие локального файла не означает, что оно попало в TMS.
-При отсутствии требуемого изображения указать ограничение готовности кейса.
-
-QR нужен только когда сканирование — часть пользовательского пути. Генерировать
-из стабильного несекретного URL/deeplink, декодировать готовый PNG доступным инструментом
-и сравнить строку с исходной. Рядом показать читаемую ссылку. Проверить возможность
-открытия в целевой среде; не превращать временную сессию или персональный стенд в
-постоянное предусловие без явного решения о применимости.
+Use QR codes only when scanning belongs to the path.
+Encode a stable, non-secret URL. Decode the generated image. Compare the exact value.
+Show the readable URL beside it. Make sure that it opens in the target environment.

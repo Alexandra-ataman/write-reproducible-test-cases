@@ -1,42 +1,21 @@
-# Необязательная интеграция с TMS
+# Optional TMS output
 
-Этот пакет работает локально без TMS. Для внешней системы использовать доступный
-официальный клиент/коннектор и его актуальную схему. Пакет не содержит сетевого
-адаптера, поставщика авторизации или автоматического издателя.
+Use an available official client and its current schema.
+Resolve the project through [project context](project-context.md). A project choice does not authorize a write.
+Read required fields, draft statuses, shared conditions, attachment operations, links, and time units.
+Convert local seconds to the target units.
 
-Перед записью использовать определённый по [маршруту проекта](project-context.md)
-`project_context.case_project`. Если выбор не сделан, спросить пользователя.
-Для имеющегося кейса проверить проект из его фактической записи. Сам факт определения
-проекта и ответа пользователя на вопрос о нём не разрешает внешнюю запись.
+Perform only authorized draft changes. Preserve valid content when an API replaces whole arrays.
+Read the target before an update. Resolve concurrent changes before writing.
+Do not repeat a timed-out create request until you establish its outcome.
+An ambiguous identifier or failed read-back leaves the write unconfirmed.
 
-Прочитать обязательные поля, разрешённые статусы и параметры, разделы, общие
-предусловия, единицы времени, операции вложений и связей. Сопоставить их с локальным
-форматом, не выдумывать имена методов или полей. Связь с исходным требованием может
-быть отдельной операцией, а не полем кейса.
+After each write, independently read the case, links, and attachments.
+Examine the project, identifier, draft status, full content, time estimate, source links, and required media.
+Examine link types. Prevent duplicate links.
+Save the responses. Record the checks under `external`.
+Use `verified` only after these checks; otherwise use `unconfirmed` and case status `blocked`.
 
-План локальных предложений не разрешает внешнюю запись. После прямого разрешения
-на перечисленные draft-операции продолжать без повторного запроса; новые поля проекта,
-общие предусловия, публикация комментария, архивирование и удаление требуют отдельного
-объёма разрешения. Не переводить кейсы в опубликованный/актуальный статус автоматически.
-
-Перед обновлением перечитать текущий кейс. Если API заменяет массивы целиком,
-сохранить все актуальные шаги, предусловия, связи и вложения; не отправлять только
-добавления как полную замену. При конкурентной правке заново сопоставить результат.
-
-После записи выполнить независимое чтение кейса, связей и вложений. Проверить:
-
-- идентификатор, проект, статус draft и фактические поля;
-- сохранность прежних проверок и соответствие итоговых шагов предложению;
-- оценку полного прохода в правильных единицах;
-- наличие и тип связи с требованиями, отсутствие дублей связей;
-- наличие, расположение и доступность требуемых изображений.
-
-Сохранить readback в рабочем каталоге и сослаться на него в результате. При таймауте
-создания сначала выяснить, появилась ли запись; не повторять POST вслепую. Неоднозначный
-ID, неуспешный readback или пропавшее вложение — незавершённая запись. Не называть её
-успешной и не создавать замену, пока исход первой операции не установлен.
-
-Локальный renderer не проверяет TMS и не подтверждает истинность readback: это задача
-агента и поддержанного клиента. Публикация раннего превью в отдельной внешней сущности
-возможна только при явном запросе и доступном контракте; она не заменяет обычный
-процесс перед добавлением кейса в регрессионную базу.
+Create project settings, publish comments, archive cases, or delete data only within separate authorization.
+For external previews, follow the available system contract and the user's explicit request.
+A saved preview does not prove execution.

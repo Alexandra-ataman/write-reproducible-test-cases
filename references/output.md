@@ -1,198 +1,74 @@
-# Локальный результат
+# Output contract
 
-Сохранить `result.json` в отдельном каталоге запуска. Все относительные пути к
-evidence разрешаются от него. Не менять файл примера на «успешный» без реального
-прохождения. Ниже показан **непроверенный ранний черновик**, не результат прогона.
+Save `result.json` in a separate directory. Start from [preview.json](../examples/preview.json), which has no completed run.
 
-```json
-{
-  "mode": "preview",
-  "project_context": {
-    "case_project": {
-      "status": "none",
-      "location": null,
-      "source": "Ответ пользователя в текущей задаче",
-      "reason": "Пользователь подтвердил, что базы кейсов ещё нет"
-    },
-    "automation_repositories": {
-      "status": "unresolved",
-      "repositories": [],
-      "source": "Репозиторий пока не указан",
-      "reason": "Для раннего превью код не нужен; перед анализом автопокрытия уточнить у пользователя"
-    }
-  },
-  "coverage": {
-    "status": "not_applicable",
-    "scope": "Новый учебный проект, существующих кейсов нет по сообщению пользователя",
-    "queries": [],
-    "read_cases": [],
-    "reason": "Пользователь явно указал отсутствие базы кейсов"
-  },
-  "cases": [
-    {
-      "id": "save-preference",
-      "title": "Сохранение выбранной настройки",
-      "action": "create",
-      "status": "preview",
-      "reason": "Самостоятельный путь сохранения, база кейсов ещё не создана",
-      "sources": ["requirements.md#preferences"],
-      "preconditions": ["Пользователь может открыть настройки; точный путь ещё не проверен"],
-      "variants": [],
-      "steps": [
-        {"action": "Изменить значение настройки и сохранить", "expected": "Появляется подтверждение сохранения по требованиям"},
-        {"action": "Повторно открыть настройки", "expected": "Отображается сохранённое значение"}
-      ],
-      "verification": {
-        "basis": "none",
-        "new_run": false,
-        "result": "not_run",
-        "environment": "Реализация пока недоступна",
-        "version": "Не проверена",
-        "checked_at": "Не выполнялось",
-        "scope": "Только черновик по требованиям",
-        "covered_steps": [],
-        "artifacts": [],
-        "limitations": ["Нужна реализация для проверки пути, данных и подписей интерфейса"]
-      },
-      "media": {"required": false, "reason": "Решение уточнить после появления интерфейса", "items": []}
-    }
-  ],
-  "not_done": ["Браузерный прогон не выполнялся; раннее превью запрошено пользователем"]
-}
-```
+## Project and coverage
 
-## Поля и состояния
+`mode`: `verified` for normal work; `preview` for requested early drafts. Check each case status for its outcome.
 
-`mode`: `verified` для обычной работы, `preview` для явно запрошенных ранних черновиков.
-Режим `verified` может завершиться блокировками; его имя само по себе не означает успех.
+`project_context.case_project`: `status`, `location` (URL/path or null), `source`, `reason`.
+`project_context.automation_repositories`: `status`, `repositories`, `source`, `reason`.
+Each repository has `location`, search `scope`, and examined `revision` or a stated revision limit.
 
-`project_context` обязателен. Его определение и вопросы пользователю описаны в
-[маршруте проекта](project-context.md). В нём независимо фиксируются:
+Context states: `resolved`, `none`, `unresolved`, `inaccessible`.
+Use `none` only for stated absence, with null case location or an empty repository list.
+Resolved sources need locations; automation needs a nonempty repository list.
 
-- `case_project`: `status`, `location` (URL/путь или null), `source`, `reason`;
-- `automation_repositories`: `status`, `repositories`, `source`, `reason`.
+`coverage` has `status`, `scope`, `queries`, `read_cases`, `reason`.
+Each read case has `ref` and a content `comparison`.
 
-Состояния: `resolved` — источник выбран и доступен, `none` — пользователь/настройки
-явно подтверждают его отсутствие, `unresolved` — источник ещё не определён,
-`inaccessible` — источник известен, но недоступен. Для `none` location равен null,
-а список репозиториев пуст. Отсутствие ответа не даёт права поставить `none`.
+| Coverage status | Required basis |
+|---|---|
+| `complete` | Resolved project; at least two distinct queries; relevant candidates read in full |
+| `targeted` | Resolved project; editorial update of a fully read case |
+| `not_applicable` | Confirmed absence of a case database |
+| `unavailable` | Unknown, inaccessible, or incomplete source |
 
-Каждая запись `repositories` содержит `location` (URL/путь), `scope` (конкретный
-проект/каталоги поиска) и `revision` (просмотренная ветка/ревизия либо явное ограничение
-доступного клиента). Для `resolved` список непуст. Пример:
+## Cases
 
-```json
-{
-  "status": "resolved",
-  "repositories": [
-    {"location": "https://github.com/example/shop", "scope": "web/shop, tests/shop", "revision": "main, inspected commit recorded in run notes"},
-    {"location": "https://github.com/example/shop-e2e", "scope": "tests/checkout", "revision": "main, inspected commit recorded in run notes"}
-  ],
-  "source": "Ответ пользователя со ссылками на оба репозитория",
-  "reason": "Код продукта и E2E хранятся отдельно"
-}
-```
+Each case has unique lowercase-hyphenated `id`, `title`, `action`, `status`, `reason`, and nonempty `sources`.
+For `update` or `unchanged`, include `existing_ref` in `coverage.read_cases`.
 
-`coverage.complete`/`targeted` требуют определённой базы `resolved`; `not_applicable`
-требует `case_project.status: none`. Для неизвестной или недоступной базы допускается
-только `coverage.status: unavailable`. Когда репозитории не разрешены в `resolved`,
-анализ автоматизации использует `action: blocked`, не утверждая отсутствие тестов.
-Неизвестный код не блокирует подтверждённый ручной draft, а неизвестная база кейсов
-блокирует готовность к его созданию или изменению.
+| Action | Allowed status |
+|---|---|
+| `create`, `update` | `draft`, `blocked`, `preview` |
+| `unchanged`, `none` | `unchanged` |
 
-`coverage.status`:
+Changed cases include `preconditions`, `variants`, and `steps` with `action` and `expected`.
+For a draft, include `estimate.seconds` as a positive integer and `estimate.basis`.
 
-- `complete`: поиск завершён в указанной области; минимум два независимых запроса;
-- `not_applicable`: пользователь явно подтвердил отсутствие базы;
-- `targeted`: только редакторское обновление без изменения пути, данных или ожиданий;
-- `unavailable`: поиск недоступен или неполон, создавать/обновлять готовые кейсы нельзя.
+`verification` contains:
+- `basis`: `new_run`, `existing_report`, `mixed`, `none`;
+- `new_run`: true for `new_run` or `mixed`, otherwise false;
+- `result`: `passed`, `failed`, `partial`, `not_run`;
+- `environment`, `version`, `checked_at`, `scope`;
+- `covered_steps`: tested step numbers, starting at 1;
+- `artifacts`: local evidence paths; `limitations`: unresolved issues within the target path.
 
-`read_cases`: массив объектов `ref` (ID/путь/URL) и `comparison` (смысловое сопоставление).
-Пустой массив допустим при успешном поиске без кандидатов; причину указать в `reason`.
+A draft needs a passed check of every step, an execution report, no unresolved limitations, and available coverage.
+A blocked case needs an explanation. Early previews remain untested.
+Record variants and mock limits in `scope`. Include execution evidence beyond screenshots.
 
-Для каждого решения нужны `id` (уникальное локальное имя файла: буквы, цифры, дефис),
-`title`, `action`, `status`, `reason`, `sources`.
+`media` has `required`, `reason`, `items`.
+Each item has `path`, `role`, `caption`, `step` (0 for initial conditions), and `viewed: true` after examineion.
+A draft needs all required media.
 
-| Действие | Статус | Смысл |
-|---|---|---|
-| `create` / `update` | `draft` | Локальный draft с подтверждённым успешным путём |
-| `create` / `update` | `blocked` | Полезный текст, готовность не подтверждена |
-| `create` / `update` | `preview` | Ранний непроверенный текст по явному запросу |
-| `unchanged` | `unchanged` | Полностью прочитанный существующий кейс уже достаточен |
-| `none` | `unchanged` | Разовая проверка без полезного регрессионного сценария |
+Each draft needs `automation`: `checked`, `found`, `gaps`, `action`, `target`, `reason`.
+Each found test has `ref` and `covers`. See [automation](automation.md) for actions.
+Unknown or inaccessible repositories need `action: blocked`.
 
-Для `update` и `unchanged` обязателен `existing_ref` и соответствующая запись в
-`coverage.read_cases`. Для `update`/`create` нужны предусловия, варианты, шаги,
-verification и решение о медиа. Для `unchanged` и `none` полное тело не обязательно.
+For an external write, include `external.system`, `case_ref`, `state`, `readback`, and `checked`.
+Use saved response paths for `readback`.
+For `state: verified`, examine `draft`, `content`, `estimate`, `source_links`, and `media`.
+An unconfirmed write needs case status `blocked`.
 
-`estimate`: объект `seconds` (положительное целое) и `basis` (setup/прогон/соседний кейс).
-Обязателен для `draft`; для непроверенного текста опционален, оценку не выдавать за замер.
+## Files and report
 
-`verification.basis`: `new_run`, `existing_report`, `mixed` или `none`.
-`result`: `passed`, `failed`, `partial`, `not_run`. `new_run` — факт нового запуска.
-Для `new_run`/`mixed` он равен true; для `existing_report`/`none` — false.
-`covered_steps` содержит номера фактически подтверждённых шагов, начиная с 1.
-`artifacts` — непустые локальные отчёты/trace с действиями и наблюдениями, не только
-скриншоты. Ссылку на исходный внешний отчёт сохранить в `sources` и локальной копии.
-`limitations` — ограничения целевого пути, которые мешают готовности. Проверенная
-область, платформа и варианты указываются в `scope`, а не расширяются на все среды.
+List outstanding work in top-level `not_done`.
+Use evidence paths relative to the result directory. Files must exist and contain data.
+Do not use generated cases, `result.json`, or `report.md` as execution evidence.
 
-Для `draft` нужны успешный результат, подтверждение всех записанных шагов, версия,
-среда, время проверки, артефакты и отсутствие нерешённых ограничений целевого пути.
-Текст после редактирования должен соответствовать проверенным действиям. Результат
-предыдущего отчёта можно повторно использовать, если он удовлетворяет этим условиям.
-
-`media`: `required`, `reason`, `items`. Каждый item: `path`, `role` (`product`, `design`,
-`attachment`), `caption`, `step` (номер или 0 для предусловий), `viewed` (true после
-фактического просмотра). Для готового кейса обязательные изображения должны существовать.
-Нерешённое отсутствие медиа фиксировать в verification.limitations и статусе `blocked`.
-
-`automation` обязателен для каждого `draft`:
-
-```json
-{
-  "checked": ["Репозиторий недоступен, анализ автопокрытия заблокирован"],
-  "found": [],
-  "gaps": [],
-  "action": "blocked",
-  "target": "Код проекта",
-  "reason": "Необходим доступ к репозиторию, вывод об отсутствии тестов невозможен"
-}
-```
-
-`found` содержит объекты `ref` и `covers`. Действия: `add`, `update`, `covered`,
-`not_needed`, `blocked`. `add`/`update` требуют конкретных `gaps`, а `covered` —
-фактически прочитанных тестов в `found`.
-
-Внешняя запись отражается только дополнительным объектом `external`:
-
-```json
-{
-  "system": "Название TMS",
-  "case_ref": "Фактическая ссылка/ID",
-  "state": "verified",
-  "readback": ["evidence/case-readback.json", "evidence/links-readback.json"],
-  "checked": ["draft", "content", "estimate", "source_links", "media"]
-}
-```
-
-`state`: `verified` только после отдельного чтения и проверки; иначе `unconfirmed`.
-Второй вариант требует статуса `blocked` и объяснения, что именно не подтверждено.
-Наличие `external` не даёт разрешения на запись. Helper проверяет лишь заявленный
-контракт и существование файлов, а не фактический ответ внешнего сервиса.
-
-## Проверка и выдача
-
-```bash
-python3 <skill-dir>/scripts/finalize_cases.py <result-dir>/result.json
-```
-
-Команда не ходит в сеть, не запускает браузер и не записывает в TMS. Она сначала
-валидирует весь пакет, затем создаёт `cases/<id>.md` и `report.md`. Не использовать
-созданные файлы как evidence собственного прогона. При ошибке старый отчёт того же
-каталога может остаться от предыдущей версии: считать актуальным только результат
-успешной команды по текущему JSON, перечитать его перед выдачей.
-
-В отчёте разделяются локальные решения, данные внешней записи, новый и повторно
-использованный прогон, media и анализ автоматизации. Не повторять служебную историю
-работы и не объявлять частичный результат успешным.
+Run `scripts/finalize_cases.py <result-dir>/result.json` from the loaded skill directory.
+It examines the contract and writes `cases/<id>.md` and `report.md`.
+Read the output. After failure, any previous report is stale.
+The helper examines structure and files; the agent examines facts.
