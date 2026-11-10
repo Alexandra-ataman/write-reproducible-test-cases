@@ -1,6 +1,6 @@
 # Output contract
 
-Save `result.json` in a separate directory. Start from [preview.json](../examples/preview.json), which has no completed run.
+Save `result.json` in a separate directory. Use the fields below to record the actual result of the task.
 
 ## Project and coverage
 
@@ -50,7 +50,7 @@ A blocked case needs an explanation. Early previews remain untested.
 Record variants and mock limits in `scope`. Include execution evidence beyond screenshots.
 
 `media` has `required`, `reason`, `items`.
-Each item has `path`, `role`, `caption`, `step` (0 for initial conditions), and `viewed: true` after examineion.
+Each item has `path`, `role`, `caption`, `step` (0 for initial conditions), and `viewed: true` after visual examination.
 A draft needs all required media.
 
 Each draft needs `automation`: `checked`, `found`, `gaps`, `action`, `target`, `reason`.
