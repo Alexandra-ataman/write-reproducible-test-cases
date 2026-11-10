@@ -20,11 +20,11 @@ Get only missing details:
 Find test directories from configuration. Support separate product and E2E repositories.
 Limit monorepository searches to the relevant project. Record the examined revision or client limitation.
 
-Save choices and sources in `result.json.project_context` or the temporary task file `project-context.json`.
+Record project choices, source links, repository locations, and search scope in the task notes.
 Reuse answers within the task. Current instructions override saved choices.
 Do not create global project mappings without a separate request.
 
-Use `none` for stated absence. Unknown sources are `unresolved`; sources without access are `inaccessible`.
+Distinguish confirmed absence, an unknown source, and a known source without access.
 Get an accessible copy when necessary. Continue independent work while the user answers.
 Missing case access blocks a coverage conclusion. Missing code access blocks only the automation analysis.
 

@@ -1,74 +1,45 @@
-# Output contract
+# Output and final review
 
-Save `result.json` in a separate directory. Use the fields below to record the actual result of the task.
+Use the requested case language and project format. Save local Markdown by default.
+Use available TMS fields only for authorized external changes.
 
-## Project and coverage
+## Case content
 
-`mode`: `verified` for normal work; `preview` for requested early drafts. Check each case status for its outcome.
+Include:
 
-`project_context.case_project`: `status`, `location` (URL/path or null), `source`, `reason`.
-`project_context.automation_repositories`: `status`, `repositories`, `source`, `reason`.
-Each repository has `location`, search `scope`, and examined `revision` or a stated revision limit.
+- Title, purpose, requirement sources, and the existing case link for an update.
+- Repeatable initial conditions, accounts, data, settings, and mock setup when applicable.
+- Numbered actions with an observable expected result for every step.
+- Required images beside the related condition or expected result.
+- Checked environment, build, date, client, and variants.
+- Total manual time estimate, including setup, with its unit and basis.
 
-Context states: `resolved`, `none`, `unresolved`, `inaccessible`.
-Use `none` only for stated absence, with null case location or an empty repository list.
-Resolved sources need locations; automation needs a nonempty repository list.
+Keep exploratory attempts and diagnostics in the execution log. Preserve valid checks when updating a case.
 
-`coverage` has `status`, `scope`, `queries`, `read_cases`, `reason`.
-Each read case has `ref` and a content `comparison`.
+## Final review
 
-| Coverage status | Required basis |
-|---|---|
-| `complete` | Resolved project; at least two distinct queries; relevant candidates read in full |
-| `targeted` | Resolved project; editorial update of a fully read case |
-| `not_applicable` | Confirmed absence of a case database |
-| `unavailable` | Unknown, inaccessible, or incomplete source |
+Before you deliver each case:
 
-## Cases
+1. Compare the written initial conditions with the actual setup. Remove hidden dependencies on a previous run.
+2. Match every action and expected result to execution evidence for the relevant version and environment.
+3. Repeat changed steps when their evidence is insufficient. Keep requirement expectations when the product fails.
+4. Open the execution report and required images. Make sure that files exist, contain useful evidence, and have working links.
+5. Confirm the coverage decision. Read covering cases in full; justify updates and new cases.
+6. Record automated coverage, exact test references, gaps, and the next action, or explain unavailable code access.
+7. For TMS changes, independently read saved content, status, time units, source links, and attachments.
 
-Each case has unique lowercase-hyphenated `id`, `title`, `action`, `status`, `reason`, and nonempty `sources`.
-For `update` or `unchanged`, include `existing_ref` in `coverage.read_cases`.
+Use `draft` only when the target steps pass, initial conditions are repeatable, and all necessary evidence is available.
+Use `blocked` for an incomplete or failed target check. Explain what is necessary to continue.
+Use `preview` only for explicitly requested, untested early cases. Keep them outside the regression database.
+Use `unchanged` when existing coverage is sufficient or the check has no regression value.
 
-| Action | Allowed status |
-|---|---|
-| `create`, `update` | `draft`, `blocked`, `preview` |
-| `unchanged`, `none` | `unchanged` |
+Limit conclusions to the observed environment and variants. State all mocks and what they do not verify.
+The case text and its own report are not proof of execution. Use actual observations and artifacts.
 
-Changed cases include `preconditions`, `variants`, and `steps` with `action` and `expected`.
-For a draft, include `estimate.seconds` as a positive integer and `estimate.basis`.
+## Short report
 
-`verification` contains:
-- `basis`: `new_run`, `existing_report`, `mixed`, `none`;
-- `new_run`: true for `new_run` or `mixed`, otherwise false;
-- `result`: `passed`, `failed`, `partial`, `not_run`;
-- `environment`, `version`, `checked_at`, `scope`;
-- `covered_steps`: tested step numbers, starting at 1;
-- `artifacts`: local evidence paths; `limitations`: unresolved issues within the target path.
-
-A draft needs a passed check of every step, an execution report, no unresolved limitations, and available coverage.
-A blocked case needs an explanation. Early previews remain untested.
-Record variants and mock limits in `scope`. Include execution evidence beyond screenshots.
-
-`media` has `required`, `reason`, `items`.
-Each item has `path`, `role`, `caption`, `step` (0 for initial conditions), and `viewed: true` after visual examination.
-A draft needs all required media.
-
-Each draft needs `automation`: `checked`, `found`, `gaps`, `action`, `target`, `reason`.
-Each found test has `ref` and `covers`. See [automation](automation.md) for actions.
-Unknown or inaccessible repositories need `action: blocked`.
-
-For an external write, include `external.system`, `case_ref`, `state`, `readback`, and `checked`.
-Use saved response paths for `readback`.
-For `state: verified`, examine `draft`, `content`, `estimate`, `source_links`, and `media`.
-An unconfirmed write needs case status `blocked`.
-
-## Files and report
-
-List outstanding work in top-level `not_done`.
-Use evidence paths relative to the result directory. Files must exist and contain data.
-Do not use generated cases, `result.json`, or `report.md` as execution evidence.
-
-Run `scripts/finalize_cases.py <result-dir>/result.json` from the loaded skill directory.
-It examines the contract and writes `cases/<id>.md` and `report.md`.
-Read the output. After failure, any previous report is stale.
-The helper examines structure and files; the agent examines facts.
+List each scenario, the decision to create/update/leave unchanged, its status, and a case link or file.
+State whether a new run occurred. Otherwise, link the earlier report and explain its applicability.
+Link evidence and explain limits, blockers, coverage decisions, and automation recommendations.
+Record the selected case project, repositories, search scope, and the sources of those choices.
+For external writes, distinguish saved-and-checked cases from local proposals and unconfirmed operations.

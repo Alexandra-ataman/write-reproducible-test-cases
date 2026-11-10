@@ -16,13 +16,7 @@ An earlier suitable report can replace a new run.
 Provide a browser tool. [Playwright CLI](https://github.com/microsoft/playwright-cli) supports actions, screenshots, traces, and network mocks.
 See the [example](references/playwright-cli.md). The skill has no browser installer or TMS client.
 
-The helper uses Python 3.10+ and the standard library. See [output](references/output.md).
-Run its tests with synthetic data:
-
-```bash
-python3 -m unittest discover -s tests -v
-```
-
-These tests examine the helper, not browser execution or case quality.
+The package contains instructions only. The agent performs the browser run and final review with available tools.
+See [output and final review](references/output.md) for the case content and evidence checks.
 
 Terms: *case*: test procedure; *mock*: replacement response; *repository*: code store; *artifact*: evidence file; *TMS*: test management system.

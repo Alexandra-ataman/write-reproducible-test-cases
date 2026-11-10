@@ -13,8 +13,8 @@ An ambiguous identifier or failed read-back leaves the write unconfirmed.
 After each write, independently read the case, links, and attachments.
 Examine the project, identifier, draft status, full content, time estimate, source links, and required media.
 Examine link types. Prevent duplicate links.
-Save the responses. Record the checks under `external`.
-Use `verified` only after these checks; otherwise use `unconfirmed` and case status `blocked`.
+Save the responses. Record the checks and the actual case link in the report.
+Report a successful write only after these checks. Otherwise, mark the write unconfirmed and the case blocked.
 
 Create project settings, publish comments, archive cases, or delete data only within separate authorization.
 For external previews, follow the available system contract and the user's explicit request.
